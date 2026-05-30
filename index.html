@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NED Mock Test – Team NST</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #c0392b; --dark: #1a1a2e; --accent: #e94560; --gold: #f0a500;
+    --white: #ffffff; --correct: #27ae60; --wrong: #e74c3c; --unanswered: #7f8c8d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--dark); color: var(--white); min-height: 100vh; }
+
+  /* HOME */
+  #home-page {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    position: relative; overflow: hidden; padding: 20px;
+  }
+  #home-page::before {
+    content:''; position:absolute; width:600px; height:600px;
+    background:radial-gradient(circle,rgba(233,69,96,0.15) 0%,transparent 70%);
+    top:-100px; right:-100px; border-radius:50%; pointer-events:none;
+  }
+  #home-page::after {
+    content:''; position:absolute; width:400px; height:400px;
+    background:radial-gradient(circle,rgba(240,165,0,0.1) 0%,transparent 70%);
+    bottom:-80px; left:-80px; border-radius:50%; pointer-events:none;
+  }
+  .home-card {
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+    border-radius:24px; padding:44px 52px; max-width:700px; width:100%;
+    text-align:center; backdrop-filter:blur(20px); position:relative; z-index:1;
+    box-shadow:0 30px 80px rgba(0,0,0,0.5);
+  }
+  @media(max-width:600px){ .home-card{ padding:30px 22px; } }
+  .badge {
+    display:inline-block; background:linear-gradient(135deg,var(--accent),var(--red));
+    color:#fff; font-family:'Rajdhani',sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase; padding:6px 18px;
+    border-radius:50px; margin-bottom:22px;
+  }
+  .home-title {
+    font-family:'Rajdhani',sans-serif; font-size:clamp(30px,6vw,52px); font-weight:700;
+    line-height:1.1; margin-bottom:6px;
+    background:linear-gradient(135deg,#fff 0%,#c5cae9 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .home-subtitle {
+    font-family:'Rajdhani',sans-serif; font-size:20px; color:var(--gold);
+    font-weight:600; letter-spacing:2px; margin-bottom:28px;
+  }
+  .test-stats { display:flex; justify-content:center; gap:28px; margin-bottom:28px; }
+  .stat { text-align:center; }
+  .stat-num { font-family:'Rajdhani',sans-serif; font-size:34px; font-weight:700; color:var(--gold); line-height:1; }
+  .stat-label { font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:1px; text-transform:uppercase; }
+  .stat-divider { width:1px; background:rgba(255,255,255,0.1); }
+
+  /* GROUP SELECTOR */
+  .group-label {
+    font-family:'Rajdhani',sans-serif; font-size:15px; color:rgba(255,255,255,0.55);
+    letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;
+  }
+  .group-toggle {
+    display:flex; gap:12px; margin-bottom:24px; justify-content:center;
+  }
+  .group-btn {
+    flex:1; max-width:200px; padding:14px 10px;
+    background:rgba(255,255,255,0.04);
+    border:2px solid rgba(255,255,255,0.12);
+    border-radius:14px; cursor:pointer;
+    transition:all 0.2s; color:rgba(255,255,255,0.6);
+    font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700;
+    letter-spacing:1px;
+  }
+  .group-btn .g-icon { font-size:26px; display:block; margin-bottom:4px; }
+  .group-btn .g-subs { font-size:11px; font-family:'Nunito',sans-serif;
+    color:rgba(255,255,255,0.35); font-weight:600; letter-spacing:0; margin-top:4px; line-height:1.4; }
+  .group-btn:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
+  .group-btn.active-eng {
+    background:rgba(52,152,219,0.15); border-color:#3498db; color:#fff;
+    box-shadow:0 0 20px rgba(52,152,219,0.2);
+  }
+  .group-btn.active-cs {
+    background:rgba(155,89,182,0.15); border-color:#9b59b6; color:#fff;
+    box-shadow:0 0 20px rgba(155,89,182,0.2);
+  }
+  .group-btn.active-eng .g-subs, .group-btn.active-cs .g-subs { color:rgba(255,255,255,0.6); }
+
+  .instructions-box {
+    background:rgba(233,69,96,0.08); border:1px solid rgba(233,69,96,0.25);
+    border-radius:14px; padding:18px 22px; margin-bottom:28px; text-align:left;
+  }
+  .instructions-box h3 {
+    font-family:'Rajdhani',sans-serif; color:var(--accent); font-size:15px;
+    letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;
+  }
+  .instructions-box ul { list-style:none; }
+  .instructions-box ul li {
+    font-size:13.5px; color:rgba(255,255,255,0.78); padding:4px 0 4px 20px; position:relative;
+  }
+  .instructions-box ul li::before { content:'▸'; position:absolute; left:0; color:var(--gold); }
+  .name-input-wrap { position:relative; margin-bottom:16px; }
+  .name-input-wrap input {
+    width:100%; padding:15px 20px;
+    background:rgba(255,255,255,0.06); border:2px solid rgba(255,255,255,0.15);
+    border-radius:12px; color:#fff; font-family:'Nunito',sans-serif; font-size:16px; outline:none;
+    transition:border-color 0.2s;
+  }
+  .name-input-wrap input:focus { border-color:var(--accent); }
+  .name-input-wrap input::placeholder { color:rgba(255,255,255,0.35); }
+  .start-btn {
+    width:100%; padding:15px;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--red) 100%);
+    color:#fff; border:none; border-radius:12px;
+    font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; letter-spacing:2px;
+    cursor:pointer; transition:transform 0.15s,box-shadow 0.15s;
+    box-shadow:0 8px 25px rgba(233,69,96,0.4);
+  }
+  .start-btn:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(233,69,96,0.5); }
+
+  /* TEST PAGE */
+  #test-page { display:none; min-height:100vh; background:#0d1117; }
+  .test-header {
+    position:sticky; top:0; z-index:100;
+    background:rgba(13,17,23,0.97); backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    padding:12px 28px; display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .header-left { display:flex; flex-direction:column; gap:2px; }
+  .header-name { font-family:'Rajdhani',sans-serif; font-size:15px; color:rgba(255,255,255,0.55); }
+  .header-name span { color:#fff; font-weight:700; }
+  .header-group {
+    display:inline-block; font-size:11px; font-family:'Rajdhani',sans-serif;
+    font-weight:700; letter-spacing:2px; padding:2px 10px; border-radius:20px;
+  }
+  .header-group.eng { background:rgba(52,152,219,0.15); color:#3498db; border:1px solid #3498db; }
+  .header-group.cs  { background:rgba(155,89,182,0.15); color:#9b59b6; border:1px solid #9b59b6; }
+  .timer-wrap {
+    display:flex; align-items:center; gap:8px;
+    background:rgba(233,69,96,0.1); border:1px solid rgba(233,69,96,0.3);
+    border-radius:50px; padding:7px 18px;
+  }
+  #timer-display {
+    font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700;
+    color:var(--accent); letter-spacing:2px; min-width:80px; text-align:center;
+  }
+  #timer-display.warning { color:var(--gold); animation:pulse 1s infinite; }
+  #timer-display.danger  { color:var(--wrong); animation:pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .progress-bar-outer { height:4px; background:rgba(255,255,255,0.07); }
+  #progress-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--gold)); transition:width 0.3s; width:0%; }
+
+  .test-body { max-width:900px; margin:0 auto; padding:28px 18px 90px; }
+  .section-header { display:flex; align-items:center; gap:14px; margin:38px 0 20px; }
+  .section-icon {
+    width:46px; height:46px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+  }
+  .sec-english .section-icon  { background:rgba(52,152,219,0.18); }
+  .sec-math    .section-icon  { background:rgba(46,204,113,0.18); }
+  .sec-physics .section-icon  { background:rgba(155,89,182,0.18); }
+  .sec-chem    .section-icon  { background:rgba(230,126,34,0.18); }
+  .sec-cs      .section-icon  { background:rgba(26,188,156,0.18); }
+  .section-header-text h2 { font-family:'Rajdhani',sans-serif; font-size:25px; font-weight:700; letter-spacing:1px; }
+  .sec-english .section-header-text h2 { color:#3498db; }
+  .sec-math    .section-header-text h2 { color:#2ecc71; }
+  .sec-physics .section-header-text h2 { color:#9b59b6; }
+  .sec-chem    .section-header-text h2 { color:#e67e22; }
+  .sec-cs      .section-header-text h2 { color:#1abc9c; }
+  .section-header-text p { font-size:13px; color:rgba(255,255,255,0.38); }
+
+  .question-card {
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+    border-radius:16px; padding:22px; margin-bottom:12px; transition:border-color 0.2s;
+  }
+  .question-card:hover { border-color:rgba(255,255,255,0.13); }
+  .question-card.answered { border-color:rgba(46,204,113,0.22); }
+  .q-num-text { font-size:12px; color:rgba(255,255,255,0.28); margin-bottom:7px; font-weight:700; letter-spacing:0.5px; }
+  .q-text { font-size:15px; line-height:1.65; color:rgba(255,255,255,0.9); margin-bottom:14px; }
+  .rc-passage {
+    background:rgba(52,152,219,0.08); border-left:3px solid #3498db;
+    border-radius:8px; padding:13px 15px; font-size:13.5px; line-height:1.75;
+    color:rgba(255,255,255,0.78); margin-bottom:10px;
+  }
+  .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  @media(max-width:560px){ .options-grid{ grid-template-columns:1fr; } }
+  .option-label {
+    display:flex; align-items:center; gap:10px; padding:10px 13px;
+    border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+    cursor:pointer; transition:all 0.15s; font-size:14px; color:rgba(255,255,255,0.72);
+  }
+  .option-label:hover { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.2); color:#fff; }
+  .option-label input[type="radio"] { display:none; }
+  .option-label.selected { background:rgba(233,69,96,0.15); border-color:var(--accent); color:#fff; }
+  .opt-letter {
+    width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px; flex-shrink:0; transition:background 0.15s;
+  }
+  .option-label.selected .opt-letter { background:var(--accent); color:#fff; }
+
+  .submit-area {
+    position:fixed; bottom:0; left:0; right:0;
+    background:rgba(13,17,23,0.97); border-top:1px solid rgba(255,255,255,0.08);
+    padding:14px 28px; display:flex; align-items:center; justify-content:space-between; gap:14px;
+    backdrop-filter:blur(10px); z-index:99;
+  }
+  .answered-count { font-size:14px; color:rgba(255,255,255,0.5); }
+  .answered-count span { color:var(--gold); font-weight:700; font-size:18px; }
+  .submit-btn {
+    padding:12px 34px; background:linear-gradient(135deg,var(--correct),#1e8449);
+    color:#fff; border:none; border-radius:10px; font-family:'Rajdhani',sans-serif;
+    font-size:18px; font-weight:700; letter-spacing:1px; cursor:pointer;
+    transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 6px 20px rgba(39,174,96,0.3);
+  }
+  .submit-btn:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(39,174,96,0.4); }
+
+  /* VALIDATION TOAST */
+  #validation-toast {
+    display:none; position:fixed; top:76px; left:50%; transform:translateX(-50%);
+    z-index:9999; background:#130808; border:1.5px solid var(--wrong);
+    border-radius:14px; padding:18px 24px; min-width:320px; max-width:92vw;
+    box-shadow:0 10px 40px rgba(231,76,60,0.35); animation:toastIn 0.22s ease;
+  }
+  @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(-10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+  .toast-title {
+    font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700;
+    color:var(--wrong); margin-bottom:10px; display:flex; align-items:center; gap:7px;
+  }
+  .unanswered-list {
+    font-size:12.5px; color:rgba(255,255,255,0.7); max-height:150px;
+    overflow-y:auto; margin-bottom:13px; line-height:1.8;
+  }
+  .toast-actions { display:flex; gap:10px; }
+  .toast-go-btn {
+    flex:1; padding:9px; background:rgba(231,76,60,0.15); border:1px solid var(--wrong);
+    color:var(--wrong); border-radius:8px; font-family:'Rajdhani',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer; transition:background 0.15s;
+  }
+  .toast-go-btn:hover { background:rgba(231,76,60,0.28); }
+  .toast-force-btn {
+    flex:1; padding:9px; background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5);
+    border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700;
+    cursor:pointer; transition:background 0.15s;
+  }
+  .toast-force-btn:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+  /* RESULT PAGE */
+  #result-page { display:none; min-height:100vh; background:#0d1117; padding:28px 18px 60px; }
+  .result-container { max-width:820px; margin:0 auto; }
+  .result-hero {
+    text-align:center; padding:46px 28px 36px;
+    background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.08); border-radius:24px; margin-bottom:26px;
+  }
+  .result-hero h1 { font-family:'Rajdhani',sans-serif; font-size:40px; margin-bottom:5px; }
+  .result-name { font-size:15px; color:rgba(255,255,255,0.48); margin-bottom:28px; }
+  .score-circle {
+    width:158px; height:158px; border-radius:50%; margin:0 auto 22px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; border:4px solid;
+  }
+  .score-circle.excellent { border-color:var(--correct); box-shadow:0 0 40px rgba(39,174,96,0.3); }
+  .score-circle.good      { border-color:var(--gold);    box-shadow:0 0 40px rgba(240,165,0,0.3); }
+  .score-circle.average   { border-color:#3498db;         box-shadow:0 0 40px rgba(52,152,219,0.3); }
+  .score-circle.poor      { border-color:var(--wrong);   box-shadow:0 0 40px rgba(231,76,60,0.3); }
+  .score-num { font-family:'Rajdhani',sans-serif; font-size:50px; font-weight:700; line-height:1; }
+  .score-denom { font-size:15px; color:rgba(255,255,255,0.45); }
+  .score-pct { font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; margin-bottom:9px; }
+  .score-grade { display:inline-block; padding:6px 20px; border-radius:50px; font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; }
+  .grade-excellent { background:rgba(39,174,96,0.2);   color:var(--correct); border:1px solid var(--correct); }
+  .grade-good      { background:rgba(240,165,0,0.2);   color:var(--gold);    border:1px solid var(--gold); }
+  .grade-average   { background:rgba(52,152,219,0.2);  color:#3498db;         border:1px solid #3498db; }
+  .grade-poor      { background:rgba(231,76,60,0.2);   color:var(--wrong);   border:1px solid var(--wrong); }
+  .section-scores  { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:13px; margin-bottom:28px; }
+  .sec-score-card  { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:18px; text-align:center; }
+  .sec-score-card .icon { font-size:26px; margin-bottom:7px; }
+  .sec-score-card .sec-name { font-size:11px; color:rgba(255,255,255,0.38); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+  .sec-score-card .sec-num  { font-family:'Rajdhani',sans-serif; font-size:27px; font-weight:700; }
+  .review-header { font-family:'Rajdhani',sans-serif; font-size:21px; color:rgba(255,255,255,0.78); margin-bottom:14px; letter-spacing:1px; padding-bottom:9px; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .review-sec-head { font-family:'Rajdhani',sans-serif; font-size:17px; color:rgba(255,255,255,0.45); margin:22px 0 9px; letter-spacing:1px; }
+  .review-card { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:13px; padding:16px; margin-bottom:9px; }
+  .review-card.correct-ans { border-left:3px solid var(--correct); }
+  .review-card.wrong-ans   { border-left:3px solid var(--wrong); }
+  .review-card.not-ans     { border-left:3px solid var(--unanswered); }
+  .review-q { font-size:13.5px; color:rgba(255,255,255,0.83); margin-bottom:9px; line-height:1.5; }
+  .review-options { display:flex; flex-wrap:wrap; gap:7px; }
+  .review-opt { padding:4px 11px; border-radius:6px; font-size:12.5px; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.45); }
+  .review-opt.is-correct { background:rgba(39,174,96,0.14); border-color:var(--correct); color:var(--correct); font-weight:700; }
+  .review-opt.is-wrong   { background:rgba(231,76,60,0.14);  border-color:var(--wrong);   color:var(--wrong); }
+  .review-status { font-size:12px; margin-top:7px; }
+  .review-status.correct    { color:var(--correct); }
+  .review-status.wrong      { color:var(--wrong); }
+  .review-status.unanswered { color:var(--unanswered); }
+  .retake-btn {
+    display:block; width:100%; max-width:280px; margin:28px auto 0; padding:13px;
+    background:linear-gradient(135deg,var(--accent),var(--red)); color:#fff; border:none;
+    border-radius:12px; font-family:'Rajdhani',sans-serif; font-size:19px; font-weight:700;
+    letter-spacing:2px; cursor:pointer; box-shadow:0 6px 20px rgba(233,69,96,0.3);
+  }
+  .retake-btn:hover { box-shadow:0 10px 28px rgba(233,69,96,0.45); }
+</style>
+</head>
+<body>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="home-page">
+  <div class="home-card">
+    <div class="badge">IBA GRADS — NED GRAND TEST 04</div>
+    <div class="home-title">NED MOCK TEST</div>
+    <div class="home-subtitle">BY TEAM NST</div>
+
+    <div class="test-stats">
+      <div class="stat"><div class="stat-num">100</div><div class="stat-label">Questions</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">Sections</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-num">120</div><div class="stat-label">Minutes</div></div>
+    </div>
+
+    <!-- GROUP SELECTOR -->
+    <div class="group-label">Choose Your Group</div>
+    <div class="group-toggle">
+      <button class="group-btn active-eng" id="btn-eng" onclick="selectGroup('engineering')">
+        <span class="g-icon">⚙️</span>
+        Engineering
+        <div class="g-subs">English · Math · Physics · Chemistry</div>
+      </button>
+      <button class="group-btn" id="btn-cs" onclick="selectGroup('cs')">
+        <span class="g-icon">💻</span>
+        Computer Science
+        <div class="g-subs">English · Math · Physics · Computer</div>
+      </button>
+    </div>
+
+    <div class="instructions-box">
+      <h3>📋 Instructions</h3>
+      <ul>
+        <li>Test has 4 sections — 25 questions each (100 total)</li>
+        <li>A 2-hour countdown timer starts as soon as you begin</li>
+        <li>There is <strong>NO pause option</strong> — timer runs continuously</li>
+        <li>Test will <strong>auto-submit</strong> when 2 hours are over</li>
+        <li>No negative marking — attempt all questions</li>
+        <li>Full answer review shown after submission</li>
+      </ul>
+    </div>
+
+    <div class="name-input-wrap">
+      <input type="text" id="student-name" placeholder="Enter your full name to begin..." maxlength="60" />
+    </div>
+    <button class="start-btn" onclick="startTest()">START TEST →</button>
+  </div>
+</div>
+
+<!-- ===== TEST PAGE ===== -->
+<div id="test-page">
+  <div class="test-header">
+    <div class="header-left">
+      <div class="header-name">Student: <span id="display-name">—</span></div>
+      <span class="header-group" id="header-group-badge">ENGINEERING</span>
+    </div>
+    <div class="timer-wrap">
+      <span>⏱</span>
+      <div id="timer-display">2:00:00</div>
+    </div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.38);" id="answered-header">0/100 answered</div>
+  </div>
+  <div class="progress-bar-outer"><div id="progress-bar"></div></div>
+  <div class="test-body" id="test-body"></div>
+  <div class="submit-area">
+    <div class="answered-count">Answered: <span id="ans-count">0</span> / 100</div>
+    <button class="submit-btn" onclick="confirmSubmit()">SUBMIT TEST ✓</button>
+  </div>
+</div>
+
+<!-- VALIDATION TOAST -->
+<div id="validation-toast">
+  <div class="toast-title">⚠️ Unanswered Questions!</div>
+  <div class="unanswered-list" id="unanswered-list"></div>
+  <div class="toast-actions">
+    <button class="toast-go-btn" onclick="goToFirstUnanswered()">↓ Go to first unanswered</button>
+    <button class="toast-force-btn" onclick="forceSubmit()">Submit anyway</button>
+  </div>
+</div>
+
+<!-- ===== RESULT PAGE ===== -->
+<div id="result-page">
+  <div class="result-container">
+    <div class="result-hero">
+      <h1>Test Completed! 🎉</h1>
+      <div class="result-name" id="result-name-display"></div>
+      <div id="score-circle-wrap"></div>
+      <div class="score-pct" id="score-pct-display"></div>
+      <div id="grade-badge"></div>
+    </div>
+    <div class="section-scores" id="section-scores"></div>
+    <div class="review-header">📝 Answer Review</div>
+    <div id="review-list"></div>
+    <button class="retake-btn" onclick="location.reload()">TAKE ANOTHER TEST</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  MCQ DATA
+// ═══════════════════════════════════════════════
+
+const englishSection = {
+  name:"ENGLISH", icon:"📖", colorClass:"sec-english",
+  questions:[
+    { q:"Synonym of: Profound", opts:["Superficial","Precipitous","Deep","Tarnished"], ans:2 },
+    { q:"Synonym of: Bolster", opts:["To brag","Rest on","Support","Straddle"], ans:2 },
+    { q:"Synonym of: Lucrative", opts:["Attractive","Beautiful","Rewarding","Easy"], ans:2 },
+    { q:"Synonym of: Arbitrary", opts:["Democratic","Tyrannous","Overbearing","Halcyon"], ans:1 },
+    { q:"Synonym of: Expunge", opts:["To drain","Lie","Distort","Obliterate"], ans:3 },
+    { q:"Antonym of: Invigorate", opts:["Inveigle","Incapacitate","Activate","Enervate"], ans:3 },
+    { q:"Antonym of: Bleak", opts:["Pale","Sudden","Dry","Cheerful"], ans:3 },
+    { q:"Antonym of: Resilient", opts:["Pungent","Foolish","Worthy","Unyielding"], ans:3 },
+    { q:"Antonym of: Compendious", opts:["Lengthy","Laconic","Hypocritical","Pliant"], ans:0 },
+    { q:"Antonym of: LANGUOR", opts:["Vitality","Length","Embarrassment","Wine"], ans:0 },
+    { q:"Sentence Completion: The land was divided ________ the two sisters and six brothers.", opts:["Between","Among","For","With"], ans:1 },
+    { q:"Sentence Completion: He wrote a book on ________ history of boxing.", opts:["A","An","The","Not required"], ans:2 },
+    { q:"Sentence Completion: My father doesn't approve ______ studying late at night.", opts:["Of","With","On","About"], ans:0 },
+    { q:"Sentence Completion: Please excuse me ______ being late.", opts:["On","By","From","For"], ans:3 },
+    { q:"Sentence Completion: I borrowed _________ pencil from your pile of pencils and pens.", opts:["A","An","The","No article needed"], ans:0 },
+    {
+      q:`<div class="rc-passage"><strong>📄 Reading Comprehension (Q16–Q20) — Read carefully:</strong><br><br>The buses are full of conversation not only on public topics but also on embarrassingly private ones, and not only between acquaintances but also between people who have never met before. Among the former the jokes are loud and hearty, and they are also permissible between total strangers. One day a fellow passenger looked at my large sola "topee" and remarked that it was heavier than my whole body, and when I replied that it was no bigger than his turban he said that he hoped I was not offended by his joke.</div><br>The phrase 'people who have never met before' means:`,
+      opts:["The public","Potential friends","Acquaintances","Strangers"], ans:3
+    },
+    { q:"The most apt word to describe the mood of the passengers is:", opts:["Funny","Offensive","Embarrassing","Relaxed"], ans:0 },
+    { q:"The writer's reply to the fellow passenger was:", opts:["Friendly","Ironical","Discourteous","Cruel"], ans:1 },
+    { q:"The writer's reply made his fellow passenger:", opts:["Indignant","Feel embarrassed","Feel offended","Perplexed"], ans:1 },
+    { q:"From the passage it appears that the writer was:", opts:["Reserved","Obstinate","Arrogant","Amiable"], ans:3 },
+    { q:"Grammar: Every one of the dozen eggs that he had purchased (A) <u>were</u> (B) broken on the bumpy (C) <u>ride</u> home. (D) No error.", opts:["A","B — 'were' should be 'was'","C","D — No error"], ans:1 },
+    { q:"Grammar: Neither Harry (A) nor his friends (B) <u>was</u> able to (C) <u>attend</u> the (D) <u>first</u> meeting. No error.", opts:["A","B — 'was' should be 'were'","C","D — No error"], ans:1 },
+    { q:"Grammar: If Jack (A) <u>was</u> at the party, (B) <u>we would be</u> having a much (C) <u>better</u> time. No error.", opts:["A — 'was' should be 'were'","B","C","D — No error"], ans:0 },
+    { q:"Grammar: He told me that Edwin (C) <u>is</u> the (D) <u>kinder</u> of the three. No error.", opts:["A","B","C","D — 'kinder' should be 'kindest'"], ans:3 },
+    { q:"Grammar: Although both roads lead to New York City, take the (B) <u>longest</u> because it is (D) <u>smoother</u>. No error.", opts:["A — No error","B — 'longest' should be 'longer'","C","D — No error"], ans:1 },
+  ]
+};
+
+const mathSection = {
+  name:"MATH", icon:"📐", colorClass:"sec-math",
+  questions:[
+    { q:"If a circle passes all vertices of a triangle, the circle is:", opts:["Circum circle","In Circle","Ex-Circle","None"], ans:0 },
+    { q:"If –4 and 8 are roots of a quadratic equation, the equation is:", opts:["x²−4x+32=0","x²−4x−32=0","x²+4x−32=0","None"], ans:2 },
+    { q:"How many different arrangements of the word 'REARRANGE'?", opts:["9!÷(3!×2!×2!)","9!","9!÷3!","9!÷(3!×2!)"], ans:0 },
+    { q:"If 4 AMs are inserted between (a–B) and (9a+11B), the 4th A.M. is:", opts:["(13a+7b)÷3","(21a+19b)÷5","(37a+43b)÷5","None"], ans:1 },
+    { q:"Equation of perpendicular bisector of segment joining (5,4) and (–4,–2):", opts:["6x+4y−7=0","6x+4y+7=0","6x−4y+7=0","None"], ans:0 },
+    { q:"If 2, 3 and 4 are sides of a triangle, s (semi-perimeter) is:", opts:["4.5","3.5","2.5","7.5"], ans:0 },
+    { q:"A square matrix A such that A² = I is called:", opts:["Nilpotent","Involutory","Idempotent","None"], ans:1 },
+    { q:"Value of k when (k,–2) and (3,–7) lie on a line with slope –4:", opts:["7/4","–7/4","4/7","–4/7"], ans:1 },
+    { q:"Matrix addition gives result: find x & y.", opts:["(4, 3)","(–4, –3)","(–3, –4)","(3, 4)"], ans:0 },
+    { q:"sin(α+β) = ?", opts:["sinα cosβ − cosα sinβ","sinα cosβ + cosα sinβ","cosα cosβ − sinα sinβ","cosα cosβ + sinα sinβ"], ans:1 },
+    { q:"Inverse of matrix [[3,5],[2,4]]:", opts:["[[2,−5/2],[−1,3/2]]","[[2,−5/2],[1,3/2]]","[[2,5/2],[1,3/2]]","None"], ans:0 },
+    { q:"a = 2i + 3j − k, |a| = ?", opts:["√14","√15","√17","√21"], ans:0 },
+    { q:"y = x — angle of line w.r.t x-axis in anticlockwise direction:", opts:["145°","135°","45°","None"], ans:2 },
+    { q:"15° in radians =", opts:["π/12","π/6","π/2","π/3"], ans:0 },
+    { q:"If ratio of angles is 1:1:2, the triangle is:", opts:["Equilateral","Isosceles","Scalene","Right Angle"], ans:3 },
+    { q:"Range of cosec x is:", opts:["[−1,1]","R−(−1,1)","R−(1,1)","(1,1)"], ans:1 },
+    { q:"A={1,2,3}, B={0,1,2,3} — which is true?", opts:["A≠B","B=A","A⊂B","Both A & C"], ans:2 },
+    { q:"(sinθ + 7cosθ)/(sin³θ + cos³θ + cosθ) = ? if tanθ = 3/4", opts:["31/95","93/112","95/112","112/95"], ans:2 },
+    { q:"w = 100(t−15)² — rate of water running out at t = 5 min:", opts:["2500 gal/min","1500 gal/min","1000 gal/min","−2000 gal/min"], ans:3 },
+    { q:"For 9x²+16y²=144, co-ordinate of focus:", opts:["(±4,0)","(0,±4)","(±√7,0)","(0,±√7)"], ans:2 },
+    { q:"Modulus of (x,y) is:", opts:["√(x²−y²)","√(x²+y²)","√(x²−y²/2)","x²+y²"], ans:1 },
+    { q:"Solution of (x−2)/(x+2) + (x+2)/(x−2) = 34/15:", opts:["8","−8","4","A & B"], ans:3 },
+    { q:"In △ABC, sinA=1/3, sinB=1/4, sinC=?", opts:["1/7","7/12","(2√2+√15)/12","5/12"], ans:2 },
+    { q:"If sinx = 3/4 and cosx > 0, then cosx =", opts:["√7/4","−√7/4","±√7/4","None"], ans:0 },
+    { q:"(a²)³ + b²·b³ =", opts:["a²+b⁵","a⁶+b⁵","a⁶+b⁵","a⁶"], ans:1 },
+  ]
+};
+
+const physicsSection = {
+  name:"PHYSICS", icon:"⚡", colorClass:"sec-physics",
+  questions:[
+    { q:"If g is made g/16, effect on time period of pendulum:", opts:["Double","Four times","Halved","Reduced to 1/4"], ans:1 },
+    { q:"Capacitor voltage 60V — voltage when diamond is dielectric:", opts:["Less than 60","More than 60","60","None"], ans:2 },
+    { q:"Maximum Compton shift is at:", opts:["90°","0°","180°","45°"], ans:2 },
+    { q:"Adiabatic constant of air:", opts:["1.41","1.67","1.29","None of these"], ans:0 },
+    { q:"60 capacitors (each C) in series then parallel — Cs/Cp = ?", opts:["3600","1/3600","250","1/160"], ans:1 },
+    { q:"Particle of mass m, momentum p — its KE =", opts:["2pm","2m/p²","p²/2m","2/2m"], ans:2 },
+    { q:"Medium where repulsion between two charges is minimum:", opts:["Oil","Air","Vacuum","Distilled water"], ans:0 },
+    { q:"Light year is the unit of:", opts:["Distance","Speed","Force","It's not a unit"], ans:0 },
+    { q:"Carnot cycle 100% efficient when temperature of sink is:", opts:["+273K","−273K","100K","0K"], ans:3 },
+    { q:"Dry road: max speed 10 m/s; wet road 5√2 m/s. If dry friction = μ, wet friction =", opts:["μ/2","μ/3","2μ/3","3μ/4"], ans:0 },
+    { q:"F = 0.4 N, x = 2 cm — spring constant k =", opts:["10 N/m","20 N/m","3 N/m","30 N/m"], ans:1 },
+    { q:"Three identical springs (each k) hooked together — resultant k =", opts:["3k","2k","k/4","k/3"], ans:0 },
+    { q:"Object dropped — ratio of heights in 1 s, 2 s, 3 s:", opts:["1:2:3","1:4:6","1:4:9","9:4:1"], ans:0 },
+    { q:"Rifle (0.20 kg) fires 0.50 g bullet at 100 m/s — rifle recoil velocity:", opts:["0.25 m/s","0.50 m/s","1.0 m/s","10 m/s"], ans:0 },
+    { q:"Ratio of KE to total energy of electron in H-atom (Bohr):", opts:["1:−1","1:1","1:2","1:−2"], ans:3 },
+    { q:"Beats frequency when f₁ > f₂:", opts:["f₁+f₂","½(f₁+f₂)","f₁−f₂","½(f₁−f₂)"], ans:2 },
+    { q:"Body: mass 2 kg, velocity 4 ms⁻¹ — KE =", opts:["4 J","12 J","16 J","8 J"], ans:2 },
+    { q:"Motor shaft at 360 rev/min — angle turned in 1 sec:", opts:["π","3π","6π","12π"], ans:3 },
+    { q:"Second's pendulum frequency:", opts:["0.5 Hz","1 Hz","2 Hz","4 Hz"], ans:0 },
+    { q:"Projectile: ratio of max height to (flight time)²:", opts:["5:4","5:2","5:1","10:1"], ans:2 },
+    { q:"Resultant of two equal forces F is 2F — angle between them:", opts:["0°","90°","120°","180°"], ans:0 },
+    { q:"Maximum velocity of harmonic oscillator (amplitude x₀):", opts:["Kω√(x²−x₀²)","ωx₀","ω√(x₀²−x²)","ω/x₀"], ans:1 },
+    { q:"Dimension of entropy:", opts:["[ML°T⁻²]","[MLT⁻²K⁻¹]","[MLT⁻¹K⁻¹]","[ML²T⁻²K⁻¹]"], ans:3 },
+    { q:"Resistances 3Ω, 5Ω, 9Ω in series — highest potential drop across:", opts:["3 Ω","5 Ω","9 Ω","All the same"], ans:2 },
+    { q:"î·(ĵ × k̂) = ?", opts:["1","0","−1","∞"], ans:0 },
+  ]
+};
+
+const chemistrySection = {
+  name:"CHEMISTRY", icon:"🧪", colorClass:"sec-chem",
+  questions:[
+    { q:"Corrosion on aluminium is avoided by using:", opts:["Al₂O₃","O₂","Al","None of these"], ans:0 },
+    { q:"Number of σ and π bonds in N₂:", opts:["1σ & 2π","3σ & 1π","All of these","None of these"], ans:0 },
+    { q:"PVC belongs to which type of polymerization?", opts:["Addition","Condensation","All of these","None of these"], ans:0 },
+    { q:"Molecules formed by ________ bond are non-polar:", opts:["Ionic","Covalent","Metallic","None of these"], ans:1 },
+    { q:"Catalyst that speeds up reaction but does not participate:", opts:["Positive catalyst","Inhibitor","Promoter","None of these"], ans:0 },
+    { q:"HBr is:", opts:["Covalent","Polar","Non-polar","Both A & B"], ans:3 },
+    { q:"Element with config 4p¹ — which statement is INCORRECT?", opts:["4th period","Principal quantum number is 4","Azimuthal quantum number l = 1","None"], ans:2 },
+    { q:"C₅H₁₀O is the molecular formula of:", opts:["Cyclopentane","2-pentene","None","Both"], ans:3 },
+    { q:"20 g diatomic gas occupies 44.8 dm³ at STP — molecular weight:", opts:["20 g","10 g","40 g","5 g"], ans:1 },
+    { q:"Greatest rate of flow:", opts:["50 dm³ in 5 min","11 dm³ in 1 min","20 dm³ in 4 min","None"], ans:1 },
+    { q:"SnCl₂ has ________ shape:", opts:["Trigonal planar","Tetrahedral","Angular","None"], ans:2 },
+    { q:"Molarity of 98 g H₂SO₄ dissolved to make 500 mL solution:", opts:["1 M","0.5 M","2 M","3 M"], ans:2 },
+    { q:"1s², 2p⁶, 2s², 3p⁶ — which rule is violated?", opts:["Hund's rule","Aufbau principle","Pauli's exclusion","All"], ans:1 },
+    { q:"NaCl + water → container becomes hot. This represents:", opts:["Exothermic","Endothermic","Both","None"], ans:0 },
+    { q:"50 J heat given out; 100 J work done against surroundings. ΔU =", opts:["150 J","15 J","−150 J","100 J"], ans:2 },
+    { q:"IV-B group may be represented by:", opts:["Period 3","3s², 4d²","Outer transition","None"], ans:1 },
+    { q:"Number of moles of CO₂ in 1200 cm³ at STP:", opts:["0.053","0.052","1","1.5"], ans:0 },
+    { q:"Na₂CO₃ turns red litmus blue because of:", opts:["Strong Base","Strong Acid","Neutral Salt","Common Salt"], ans:0 },
+    { q:"F⁻, Cl⁻, Br⁻, I⁻ show similar properties due to:", opts:["Density","Size","Boiling point","Electronic config of valence shell"], ans:3 },
+    { q:"Which of the following is water gas?", opts:["CO+N₂","CO+H₂","CO+H₂O","CO₂+H₂"], ans:1 },
+    { q:"Cathode rays confirm presence of which atomic particle?", opts:["Proton","Neutron","Electron","Photon"], ans:2 },
+    { q:"Formula of fructose:", opts:["C₆H₁₂O₆","C₅H₁₀O₅","C₁₂H₂₂O₁₁","C₆H₅OH"], ans:0 },
+    { q:"Substance deposited at electrodes is proportional to current. This is:", opts:["Hess's Law","Faraday's 1st Law of electrolysis","Law of Heat","Faraday's 2nd Law of electrolysis"], ans:1 },
+    { q:"Solubility product is represented by:", opts:["Ksp","Ke","Kc","Kp"], ans:0 },
+    { q:"When salt and water form by chemical reaction, it is called:", opts:["Reduction","Oxidation","Neutralization","Hydrolysis"], ans:2 },
+  ]
+};
+
+const computerSection = {
+  name:"COMPUTER", icon:"💻", colorClass:"sec-cs",
+  questions:[
+    { q:"Computer professionals working in a computer center are:", opts:["Software","Firmware","Hardware","Humanware"], ans:3 },
+    { q:"Which of the items below are considered removable storage media?", opts:["Removable hard disk cartridges","Magneto-optical disk","Flexible disk cartridges","All of the above"], ans:3 },
+    { q:"Which term is used to describe RAM?", opts:["Dynamic RAM (DRAM)","Static RAM (SRAM)","Video RAM (VRAM)","All of the above"], ans:3 },
+    { q:"Which of the following are considered video components?", opts:["Resolution","Color depth","Refresh rate","All of the above"], ans:3 },
+    { q:"On a PC, how much memory is available to application software?", opts:["1024 KB","760 KB","640 KB","560 KB"], ans:2 },
+    { q:"People often call __________ the brain of the computer system:", opts:["Control Unit","Arithmetic Logic Unit","Central Processing Unit","Storage Unit"], ans:2 },
+    { q:"Which is used for manufacturing chips?", opts:["Bus","Control unit","Semiconductors","A and B only"], ans:2 },
+    { q:"The value of each bead in heaven (abacus) is:", opts:["1","3","5","7"], ans:2 },
+    { q:"The first computer introduced in Nepal was:", opts:["IBM 1400","IBM 1401","IBM 1402","IBM 1403"], ans:1 },
+    { q:"Mnemonic (memory trick) is used in which language?", opts:["Machine language","Assembly language","High level language","None of above"], ans:1 },
+    { q:"Multi-user systems save costs for small businesses because they use a single processing unit to link several:", opts:["Personal computers","Workstations","Dumb terminals","Mainframes"], ans:2 },
+    { q:"Three decision-making operations performed by the ALU:", opts:["Greater than","Less than","Equal to","All of the above"], ans:3 },
+    { q:"Word processing task associated with changing the appearance of a document:", opts:["Editing","Writing","Formatting","All of above"], ans:2 },
+    { q:"Nepal brought a computer for census of 2028 BS. This was of which generation?", opts:["First generation","Second generation","Third generation","Fourth generation"], ans:1 },
+    { q:"Algorithm and Flow chart help us to:", opts:["Know the memory capacity","Identify the base of a number system","Direct output to a printer","Specify the problem completely and clearly"], ans:3 },
+    { q:"Which statement is valid about a computer program?", opts:["It is understood by a computer","It is understood by programmer","It is understood by user","Both A & B"], ans:0 },
+    { q:"Memory is __________ and storage is __________:", opts:["Temporary, permanent","Permanent, temporary","Slow, fast","All of above"], ans:0 },
+    { q:"When was Pascaline invented?", opts:["1617","1620","1642","1837"], ans:2 },
+    { q:"Which of the following statements is valid?", opts:["Lady Augusta is the first programmer","Ada is the daughter of Lord Byron, a famous English poet","ADA is a programming language developed by US Defense","All of above"], ans:3 },
+    { q:"A compiler is a translating program which:", opts:["Translates instruction of a high level language into machine language","Translates entire source program into machine language program","Is not involved in program's execution","All of above"], ans:3 },
+    { q:"Programs designed to perform specific tasks are known as:", opts:["System software","Application software","Utility programs","Operating system"], ans:1 },
+    { q:"Computer operators:", opts:["Write computer programs for specific problems","Operate the device which inputs and outputs data from the computer","Normally require a college degree in computer science","All of the above"], ans:1 },
+    { q:"Which of the following is NOT anti-virus software?", opts:["NAV","F-Prot","Oracle","McAfee"], ans:2 },
+    { q:"What is a compiler?", opts:["Does a conversion line by line as program is run","Converts whole of a higher level program into machine code in one step","Is a general purpose language providing very efficient execution","None of the above"], ans:1 },
+    { q:"________ computers are also called personal computers:", opts:["Mainframe","Mini","Micro","Super"], ans:2 },
+  ]
+};
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let selectedGroup = 'engineering';
+let studentName  = '';
+let answers      = {};
+let activeSections = [];
+let timerInterval  = null;
+let totalSeconds   = 7200;
+let submitted      = false;
+let unansweredKeys = [];
+
+// ═══════════════════════════════════════════════
+//  HOME — GROUP SELECT
+// ═══════════════════════════════════════════════
+function selectGroup(group) {
+  selectedGroup = group;
+  const btnEng = document.getElementById('btn-eng');
+  const btnCs  = document.getElementById('btn-cs');
+  btnEng.className = 'group-btn' + (group==='engineering' ? ' active-eng' : '');
+  btnCs.className  = 'group-btn' + (group==='cs'          ? ' active-cs'  : '');
+}
+
+document.getElementById('student-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startTest();
+});
+
+function startTest() {
+  const name = document.getElementById('student-name').value.trim();
+  if (!name) {
+    document.getElementById('student-name').style.borderColor = 'var(--accent)';
+    document.getElementById('student-name').placeholder = 'Please enter your name first!';
+    return;
+  }
+  studentName = name;
+
+  activeSections = selectedGroup === 'engineering'
+    ? [englishSection, mathSection, physicsSection, chemistrySection]
+    : [englishSection, mathSection, physicsSection, computerSection];
+
+  document.getElementById('home-page').style.display  = 'none';
+  document.getElementById('test-page').style.display  = 'block';
+  document.getElementById('display-name').textContent = studentName;
+
+  const badge = document.getElementById('header-group-badge');
+  if (selectedGroup === 'engineering') {
+    badge.textContent = '⚙️ ENGINEERING';
+    badge.className = 'header-group eng';
+  } else {
+    badge.textContent = '💻 COMPUTER SCIENCE';
+    badge.className = 'header-group cs';
+  }
+
+  buildTest();
+  startTimer();
+}
+
+// ═══════════════════════════════════════════════
+//  BUILD TEST
+// ═══════════════════════════════════════════════
+function buildTest() {
+  const body = document.getElementById('test-body');
+  body.innerHTML = '';
+  let globalQ = 0;
+
+  activeSections.forEach((sec, si) => {
+    const secWrap = document.createElement('div');
+    secWrap.innerHTML = `
+      <div class="section-header ${sec.colorClass}">
+        <div class="section-icon">${sec.icon}</div>
+        <div class="section-header-text">
+          <h2>${sec.name}</h2>
+          <p>Questions ${globalQ+1}–${globalQ+sec.questions.length} &nbsp;·&nbsp; 25 marks</p>
+        </div>
+      </div>`;
+
+    sec.questions.forEach((q, qi) => {
+      const gNum = globalQ + qi + 1;
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `card_${si}_${qi}`;
+      const optsHtml = q.opts.map((opt, oi) => `
+        <label class="option-label" id="opt_${si}_${qi}_${oi}" onclick="selectOption(${si},${qi},${oi})">
+          <input type="radio" name="q_${si}_${qi}" value="${oi}">
+          <span class="opt-letter">${['A','B','C','D'][oi]}</span>
+          <span>${opt}</span>
+        </label>`).join('');
+      card.innerHTML = `
+        <div class="q-num-text">Q${gNum} &nbsp;·&nbsp; ${sec.name}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="options-grid">${optsHtml}</div>`;
+      secWrap.appendChild(card);
+    });
+
+    globalQ += sec.questions.length;
+    body.appendChild(secWrap);
+  });
+}
+
+function selectOption(si, qi, oi) {
+  const key  = `${si}_${qi}`;
+  const prev = answers[key];
+  if (prev !== undefined) document.getElementById(`opt_${si}_${qi}_${prev}`).classList.remove('selected');
+  answers[key] = oi;
+  document.getElementById(`opt_${si}_${qi}_${oi}`).classList.add('selected');
+  document.getElementById(`card_${si}_${qi}`).classList.add('answered');
+  // Remove red highlight if it was marked unanswered
+  document.getElementById(`card_${si}_${qi}`).style.borderColor = '';
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = Object.keys(answers).length;
+  document.getElementById('ans-count').textContent    = count;
+  document.getElementById('answered-header').textContent = `${count}/100 answered`;
+  document.getElementById('progress-bar').style.width   = (count / 100 * 100) + '%';
+}
+
+// ═══════════════════════════════════════════════
+//  TIMER
+// ═══════════════════════════════════════════════
+function startTimer() {
+  timerInterval = setInterval(() => {
+    totalSeconds--;
+    if (totalSeconds <= 0) { clearInterval(timerInterval); submitTest(true); return; }
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    const d = document.getElementById('timer-display');
+    d.textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    d.className = totalSeconds <= 300 ? 'danger' : totalSeconds <= 900 ? 'warning' : '';
+  }, 1000);
+}
+
+// ═══════════════════════════════════════════════
+//  SUBMIT + VALIDATION
+// ═══════════════════════════════════════════════
+function confirmSubmit() {
+  unansweredKeys = [];
+  let globalQ = 0;
+  activeSections.forEach((sec, si) => {
+    sec.questions.forEach((q, qi) => {
+      if (answers[`${si}_${qi}`] === undefined)
+        unansweredKeys.push({ si, qi, gNum: globalQ + qi + 1, secName: sec.name });
+    });
+    globalQ += sec.questions.length;
+  });
+
+  if (unansweredKeys.length === 0) { submitTest(false); return; }
+
+  // Highlight unanswered cards in red
+  unansweredKeys.forEach(({ si, qi }) => {
+    const c = document.getElementById(`card_${si}_${qi}`);
+    if (c) c.style.borderColor = 'rgba(231,76,60,0.55)';
+  });
+
+  const listHtml = unansweredKeys.map(({ gNum, secName }) =>
+    `<span style="display:inline-block;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:6px;padding:2px 9px;margin:2px;font-size:12px;">Q${gNum} · ${secName}</span>`
+  ).join('');
+
+  document.getElementById('unanswered-list').innerHTML =
+    `<div style="margin-bottom:8px;color:var(--wrong);font-weight:700;">You have <strong>${unansweredKeys.length}</strong> unanswered question(s) — please solve all MCQs before submitting:</div>` + listHtml;
+
+  const toast = document.getElementById('validation-toast');
+  toast.style.display = 'block';
+  setTimeout(() => { if (!submitted) hideToast(); }, 18000);
+}
+
+function hideToast() {
+  document.getElementById('validation-toast').style.display = 'none';
+  unansweredKeys.forEach(({ si, qi }) => {
+    const c = document.getElementById(`card_${si}_${qi}`);
+    if (c && !answers[`${si}_${qi}`]) c.style.borderColor = '';
+  });
+}
+
+function goToFirstUnanswered() {
+  hideToast();
+  if (unansweredKeys.length > 0) {
+    const { si, qi } = unansweredKeys[0];
+    const card = document.getElementById(`card_${si}_${qi}`);
+    if (card) {
+      card.scrollIntoView({ behavior:'smooth', block:'center' });
+      card.style.boxShadow = '0 0 0 2px var(--wrong)';
+      setTimeout(() => { card.style.boxShadow = ''; }, 2200);
+    }
+  }
+}
+
+function forceSubmit() { hideToast(); submitTest(false); }
+
+function submitTest(auto) {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+  if (auto) alert('⏱ Time is up! Your test has been auto-submitted.');
+  showResults();
+}
+
+// ═══════════════════════════════════════════════
+//  RESULTS
+// ═══════════════════════════════════════════════
+function showResults() {
+  document.getElementById('test-page').style.display   = 'none';
+  document.getElementById('result-page').style.display = 'block';
+
+  let total = 0;
+  const secScores = activeSections.map((sec, si) => {
+    let s = 0;
+    sec.questions.forEach((q, qi) => { if (answers[`${si}_${qi}`] === q.ans) s++; });
+    total += s;
+    return s;
+  });
+
+  const pct = Math.round(total / 100 * 100);
+  let gradeText, gradeClass, circleClass;
+  if (pct >= 80) { gradeText='EXCELLENT';         gradeClass='grade-excellent'; circleClass='excellent'; }
+  else if(pct>=60){ gradeText='GOOD';             gradeClass='grade-good';      circleClass='good'; }
+  else if(pct>=40){ gradeText='AVERAGE';          gradeClass='grade-average';   circleClass='average'; }
+  else            { gradeText='NEEDS IMPROVEMENT';gradeClass='grade-poor';      circleClass='poor'; }
+
+  const groupLabel = selectedGroup === 'engineering' ? '⚙️ Engineering' : '💻 Computer Science';
+  document.getElementById('result-name-display').innerHTML =
+    `<strong>${studentName}</strong> &nbsp;|&nbsp; ${groupLabel}`;
+
+  document.getElementById('score-circle-wrap').innerHTML = `
+    <div class="score-circle ${circleClass}">
+      <div class="score-num">${total}</div>
+      <div class="score-denom">out of 100</div>
+    </div>`;
+  document.getElementById('score-pct-display').textContent = `${pct}%`;
+  document.getElementById('grade-badge').innerHTML = `<span class="score-grade ${gradeClass}">${gradeText}</span>`;
+
+  // Section score cards
+  document.getElementById('section-scores').innerHTML = activeSections.map((sec, si) => `
+    <div class="sec-score-card">
+      <div class="icon">${sec.icon}</div>
+      <div class="sec-name">${sec.name}</div>
+      <div class="sec-num" style="color:${['#3498db','#2ecc71','#9b59b6', selectedGroup==='engineering'?'#e67e22':'#1abc9c'][si]}">${secScores[si]}/25</div>
+    </div>`).join('');
+
+  // Answer review
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  let globalQ = 0;
+
+  activeSections.forEach((sec, si) => {
+    const h = document.createElement('div');
+    h.className = 'review-sec-head';
+    h.textContent = `${sec.icon}  ${sec.name}`;
+    reviewList.appendChild(h);
+
+    sec.questions.forEach((q, qi) => {
+      const key     = `${si}_${qi}`;
+      const chosen  = answers[key];
+      const correct = q.ans;
+      const isRight = chosen === correct;
+      const noAns   = chosen === undefined;
+      const gNum    = globalQ + qi + 1;
+
+      const cardClass    = noAns ? 'not-ans' : (isRight ? 'correct-ans' : 'wrong-ans');
+      const statusText   = noAns ? '— Not answered' : (isRight ? '✓ Correct' : '✗ Incorrect');
+      const statusClass  = noAns ? 'unanswered' : (isRight ? 'correct' : 'wrong');
+
+      // Strip HTML tags from question text for review display
+      const tmpDiv = document.createElement('div');
+      tmpDiv.innerHTML = q.q;
+      const plainQ = tmpDiv.textContent || tmpDiv.innerText || q.q;
+
+      const optsHtml = q.opts.map((opt, oi) => {
+        let cls = '';
+        if (oi === correct) cls = 'is-correct';
+        else if (oi === chosen && !isRight) cls = 'is-wrong';
+        return `<span class="review-opt ${cls}">${['A','B','C','D'][oi]}) ${opt}</span>`;
+      }).join('');
+
+      const card = document.createElement('div');
+      card.className = `review-card ${cardClass}`;
+      card.innerHTML = `
+        <div class="review-q"><strong>Q${gNum}.</strong> ${plainQ}</div>
+        <div class="review-options">${optsHtml}</div>
+        <div class="review-status ${statusClass}">${statusText}</div>`;
+      reviewList.appendChild(card);
+    });
+    globalQ += sec.questions.length;
+  });
+
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
